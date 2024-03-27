@@ -3,26 +3,30 @@ var jwt = require('jsonwebtoken');
 
 var User = require('../models/user');
 
-exports.registerUser =  (req, res) => {
+exports.registerUser =  async (req, res) => {
     try { 
         const { email, username, password, role } = req.body;
-        bcrypt.hash(password, 10, async (err, hash) => {
-            if(err) { 
-                console.log(err);
-            }
-            await User.create({
-                email: email,
-                username: username,
-                password: hash,
-                role: role
-            }).then((user) => { 
-                res.status(201).send(user);
-            }).catch((err) => { 
-                res.status(500).send(err)
+        const usr = await User.findOne({ email: email });
+        if(usr) { res.status(400).send(`User already exists`) }
+        else { 
+            bcrypt.hash(password, 10, async (err, hash) => {
+                if(err) { 
+                    res.status(500).send(err)
+                }
+                await User.create({
+                    email: email,
+                    username: username,
+                    password: hash,
+                    role: role
+                }).then((user) => { 
+                    res.status(201).send(user);
+                }).catch((err) => { 
+                    res.status(500).send(err)
+                })
             })
-        })
+        }
     }catch(error) { 
-        console.log(error.message)
+        res.status(500).send(error);
     }
 }
 
