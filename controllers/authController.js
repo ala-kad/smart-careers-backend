@@ -1,11 +1,12 @@
 var bcrypt = require('bcrypt');
 var jwt = require('jsonwebtoken'); 
 
-var User = require('../models/user');
+var { User, Admin, Candidate, Recruiter } = require('../models/user');
 
 exports.registerUser =  async (req, res) => {
     try { 
-        const { email, username, password, role } = req.body;
+        const { email, username, password, role, ...roleFields } = req.body;
+
         const usr = await User.findOne({ email: email });
         if(usr) { res.status(400).send(`User already exists`) }
         else { 
@@ -13,16 +14,30 @@ exports.registerUser =  async (req, res) => {
                 if(err) { 
                     res.status(500).send(err)
                 }
-                await User.create({
-                    email: email,
-                    username: username,
-                    password: hash,
-                    role: role
-                }).then((user) => { 
-                    res.status(201).send(user);
-                }).catch((err) => { 
-                    res.status(500).send(err)
-                })
+                console.log(role);
+                switch (role) {
+                    case 'admin':
+                        var usr = await Admin.create({email, username, hash, role, ...roleFields}) ; 
+                        res.status(201).send(`User created : ${usr}`);
+                        break;
+                    case 'recruiter':
+                        var usr = await Recruiter.create({email, username, hash, role, ...roleFields}) ;
+                        res.status(201).send(`User created : ${usr}`);
+                        break;
+                    case 'candidate':
+                        var usr = await Candidate.create({email, username, hash, role, ...roleFields}) ;
+                        res.status(201).send(`User created : ${usr}`);
+                        break;
+                    default: 
+                        await User.create({ email, username, hash, role }) 
+                        .then((user) => { 
+                            res.status(201).send(user);
+                        }).catch((err) => { 
+                            res.status(500).send(err)
+                        })
+                        break;
+                }
+                
             })
         }
     }catch(error) { 
