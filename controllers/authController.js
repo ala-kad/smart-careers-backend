@@ -14,22 +14,21 @@ exports.registerUser =  async (req, res) => {
                 if(err) { 
                     res.status(500).send(err)
                 }
-                console.log(role);
                 switch (role) {
                     case 'admin':
-                        var usr = await Admin.create({email, username, hash, role, ...roleFields}) ; 
+                        var usr = await Admin.create({ email, username, password: hash, role, ...roleFields }) ; 
                         res.status(201).send(`User created : ${usr}`);
                         break;
                     case 'recruiter':
-                        var usr = await Recruiter.create({email, username, hash, role, ...roleFields}) ;
+                        var usr = await Recruiter.create({ email, username, password: hash, role, ...roleFields }) ;
                         res.status(201).send(`User created : ${usr}`);
                         break;
                     case 'candidate':
-                        var usr = await Candidate.create({email, username, hash, role, ...roleFields}) ;
+                        var usr = await Candidate.create({email, username, password: hash, role, ...roleFields}) ;
                         res.status(201).send(`User created : ${usr}`);
                         break;
                     default: 
-                        await User.create({ email, username, hash, role }) 
+                        await User.create({ email, username,  password: hash, role }) 
                         .then((user) => { 
                             res.status(201).send(user);
                         }).catch((err) => { 
@@ -63,7 +62,6 @@ exports.loginUser = async (req, res) => {
             return res.status(200).json({message: 'Logged in', token})
         }
     }catch(err) { 
-        console.log(err);
         return res.status(404).send(err.message);
     }
 }
