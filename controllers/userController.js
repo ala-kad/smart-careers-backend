@@ -1,3 +1,5 @@
+const asyncHandler = require('express-async-handler');
+
 const { User } = require('../models/user');
 
 const getAllUsers = async (req, res)  => { 
@@ -38,4 +40,9 @@ const deleteUser = async (req, res) => {
     }
 }
 
-module.exports = { getAllUsers, getOneUser, updateUser, deleteUser }; 
+const deleteAll = asyncHandler(async(req, res) => { 
+    await User.deleteMany();
+    res.status(200).send(`Users deleted`);
+})
+
+module.exports = { getAllUsers, getOneUser, updateUser, deleteUser, deleteAll }; 
