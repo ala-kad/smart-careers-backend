@@ -2,7 +2,8 @@ var express = require('express');
 var router = express.Router();
 
 var { registerUser, loginUser } = require('../controllers/authController') ;
-var { getAllUsers, getOneUser, updateUser, deleteUser } = require('../controllers/userController.js')
+var { getAllUsers, getOneUser, updateUser, deleteUser, deleteAll } = require('../controllers/userController.js');
+
 
 var rbac = require('../middlewares/rbac') ;
 var { ROLE, Users, default: Role } = require('../models/Role') ;
@@ -37,16 +38,18 @@ router.post('/', registerUser);
 router.post('/login', loginUser);
 
 /* GET users listing. */
-router.get('/', getAllUsers)
+router.get('/', rbac.authUser, getAllUsers)
 
 /* GET one user. */
-router.get('/:id', getAllUsers)
+router.get('/:id', getOneUser)
 
 /* Update user */ 
 router.patch('/:id', updateUser);
 
 /* Delete user*/
 router.delete('/:id', deleteUser );
+
+router.delete('/', deleteAll);
 
 // router.get('/admin', rbac.checkRole(ROLE.ADMIN))
 router.get('/admin', rbac.checkRole(['admin'])) //  /users/admin => user.role === admin / crud user.role === recruteur 
