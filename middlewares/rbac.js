@@ -46,6 +46,6 @@ exports.authUser = asyncHandler(async(req, res, next) => {
     next();
 });
 
-exports.authAdmin = (req, res, next) => {
-    req.user.role.includes('admin') ? next() :  res.status(401).json({ error: 'Unauthorized: Token missing' });
-}
+exports.authAdmin = asyncHandler(async(req, res, next) => {
+    req.user.role.includes('admin') ? next() :  res.status(401).json({ error: 'Unauthorized: Must be admin' });
+});
