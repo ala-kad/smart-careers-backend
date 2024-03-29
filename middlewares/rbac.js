@@ -36,6 +36,7 @@ exports.checkRole = (roles) => async (req, res, next) => {
 }
 
 exports.authUser = asyncHandler(async(req, res, next) => {
+    if(!req.headers.authorization){ res.status(401).json({ error: 'Unauthorized: Token missing' })}
     const token = req.headers.authorization.split(' ')[1];
     token ? req.token = token : res.status(401).json({ error: 'Unauthorized: Token missing' });
     // Verify the token 
