@@ -17,15 +17,15 @@ exports.registerUser =  async (req, res) => {
                 switch (role) {
                     case 'admin':
                         var usr = await Admin.create({ email, username, password: hash, role, ...roleFields }) ; 
-                        res.status(201).send(`User created : ${usr}`);
+                        res.status(201).json(usr);
                         break;
                     case 'recruiter':
                         var usr = await Recruiter.create({ email, username, password: hash, role, ...roleFields }) ;
-                        res.status(201).send(`User created : ${usr}`);
+                        res.status(201).json(usr);
                         break;
                     case 'candidate':
                         var usr = await Candidate.create({email, username, password: hash, role, ...roleFields}) ;
-                        res.status(201).send(`User created : ${usr}`);
+                        res.status(201).json(usr);
                         break;
                     default: 
                         await User.create({ email, username,  password: hash, role }) 
