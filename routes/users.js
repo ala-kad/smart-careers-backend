@@ -6,12 +6,12 @@ var { getAllUsers, getOneUser, updateUser, deleteUser, deleteAll } = require('..
 
 
 var rbac = require('../middlewares/rbac') ;
-var { ROLE, Users, default: Role } = require('../models/Role') ;
 var passportConfig = require('../config/passport');
 
 var passport = require('passport')
 var LocalStrategy = require('passport-local');
 
+const { initAdminAccount } = require('../config/init');
 
 // Auth func Passport Local (user + pass) - TO-CHECK
 passport.use(new LocalStrategy (
@@ -38,7 +38,7 @@ router.post('/', registerUser);
 router.post('/login', loginUser);
 
 /* GET users listing. */
-router.get('/', rbac.authUser, getAllUsers)
+router.get('/', getAllUsers)
 
 /* GET one user. */
 router.get('/:id', getOneUser)
@@ -52,7 +52,9 @@ router.delete('/:id', deleteUser );
 router.delete('/', deleteAll);
 
 // router.get('/admin', rbac.checkRole(ROLE.ADMIN))
-router.get('/admin', rbac.checkRole(['admin'])) //  /users/admin => user.role === admin / crud user.role === recruteur 
+router.get('/dashboard/admin', async(req, res) => { 
+  await initAdminAccount(req, res); 
+}) //  /users/admin => user.role === admin / crud user.role === recruteur 
 
 router.get('/recruiter', function(req, res, next) {
   res.send('Recruiter dashboard');

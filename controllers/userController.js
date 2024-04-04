@@ -45,4 +45,8 @@ const deleteAll = asyncHandler(async(req, res) => {
     res.status(200).send(`Users deleted`);
 })
 
+const assignRolesToUser = async() => { 
+    
+}
+
 module.exports = { getAllUsers, getOneUser, updateUser, deleteUser, deleteAll }; 
