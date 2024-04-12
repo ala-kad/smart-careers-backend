@@ -1,17 +1,16 @@
-const roles = require('../config/roles.json');
-
-class Role {
-    constructor() { 
-        this.roles = roles.roles;
+const roles = [
+    {
+        "name": "recruiter"
+    },
+    {
+        "name": "rh"
+    },
+    {
+        "name": "technique"
+    },
+    {
+        "name": "candidate"
     }
+]
 
-    getRoleByName(name){ 
-        return this.roles.map((role) => role.name === name);
-    }
-
-    getRoles() {
-        return this.roles;
-    }
-}
-
-module.exports = Role;
+module.exports = roles;
