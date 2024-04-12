@@ -27,6 +27,20 @@ app.use(session({
     saveUninitialized: true,
     cookie: { secure: true }
 }));
+
+/**
+ * TO-DO Rate limit reqs 
+ */
+
+// const limiter = rateLimit({
+//     windowMs: 5 * 60 * 1000,
+//     limit: 10,
+//     standardHeaders: true,
+//     legacyHeaders: false
+//     });
+    
+// app.use(limiter);
+
 app.use(cors());
 app.use(passport.initialize(passportConfig))
 
@@ -34,5 +48,13 @@ app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/jobs', jobsRouter);
 app.use('/roles', rbac.authUser, rbac.authAdmin, rolesRouter);
+
+const { initAdminAccount } = require("./config/init");
+
+async function start() { 
+    await initAdminAccount();
+}
+
+start();
 
 module.exports = app;
