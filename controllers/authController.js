@@ -1,11 +1,12 @@
 var bcrypt = require('bcrypt');
 var jwt = require('jsonwebtoken'); 
 
-var { User, Admin, Candidate, Recruiter } = require('../models/user');
+var { User } = require('../models/user');
+const roles = require('../models/roles');
 
 exports.registerUser =  async (req, res) => {
     try { 
-        const { email, username, password, role, ...roleFields } = req.body;
+        const { email, username, password } = req.body;
 
         const usr = await User.findOne({ email: email });
         if(usr) { res.status(400).send(`User already exists`) }
@@ -14,35 +15,55 @@ exports.registerUser =  async (req, res) => {
                 if(err) { 
                     res.status(500).send(err)
                 }
-                switch (role) {
-                    case 'admin':
-                        var usr = await Admin.create({ email, username, password: hash, role, ...roleFields }) ; 
-                        res.status(201).json(usr);
-                        break;
-                    case 'recruiter':
-                        var usr = await Recruiter.create({ email, username, password: hash, role, ...roleFields }) ;
-                        res.status(201).json(usr);
-                        break;
-                    case 'candidate':
-                        var usr = await Candidate.create({email, username, password: hash, role, ...roleFields}) ;
-                        res.status(201).json(usr);
-                        break;
-                    default: 
-                        await User.create({ email, username,  password: hash, role }) 
-                        .then((user) => { 
-                            res.status(201).send(user);
-                        }).catch((err) => { 
-                            res.status(500).send(err)
-                        })
-                        break;
-                }
+                await User.create({ 
+                    email, 
+                    username, 
+                    password: hash, 
+                    role: roles[3].name
+                }) 
+                .then((user) => { 
+                    res.status(201).send(user);
+                }).catch((err) => { 
+                    res.status(500).send(err)
+                })
                 
             })
         }
     }catch(error) { 
-        res.status(500).send(error);
+        res.status(500).send(error.message);
     }
 }
+
+exports.registerRecruiter =  async (req, res) => {
+    try { 
+        const { email, username, password } = req.body;
+
+        const usr = await User.findOne({ email: email });
+        if(usr) { res.status(400).send(`User already exists`) }
+        else { 
+            bcrypt.hash(password, 10, async (err, hash) => {
+                if(err) { 
+                    res.status(500).send(err)
+                }
+                await User.create({ 
+                    email, 
+                    username,
+                    password: hash, 
+                    role: roles[0].name
+                }) 
+                .then((user) => { 
+                    res.status(201).send(user);
+                }).catch((err) => { 
+                    res.status(500).send(err)
+                })
+                
+            })
+        }
+    }catch(error) { 
+        res.status(500).send(error.message);
+    }
+}
+
 
 exports.loginUser = async (req, res) => { 
     try { 
