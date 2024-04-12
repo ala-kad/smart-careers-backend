@@ -2,7 +2,8 @@ const mongoose = require('mongoose');
 // const passportLocalMongoose = require('passport-local-mongoose');
 
 const  Permissions = ['create', 'read', 'update', 'delete', 'all', 'none'];
-const Roles = ['admin', 'recruiter', 'candidate'];
+
+const roles = require('./roles.js')
    
 const userSchema = new mongoose.Schema({
     email: { 
@@ -15,13 +16,14 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    checkPassword : String,
     role: {
-        type: String,
-        // type: [mongoose.Types.ObjectId ], 
-        // ref: 'Role'
+        type: [String],
+        enum: roles.map((role) => role.name)
     },
-    permissions: [String],
+    enabled: {
+        type: Boolean,
+        default: true
+    }
 },{ versionKey: false});
 
 /**
@@ -56,15 +58,14 @@ const recruiterSchema = new mongoose.Schema({
     firstname: String, 
     lastname: String,
     phone: Number,
-    jobs: String // To-Do change to obect ID One User to Many Jobs (One job have 1 Recruiter(author), 1 Recruiter writes 1..n jobs)
 }, {discriminatorKey: 'role'});
 
 
 // userSchema.plugin(passportLocalMongoose)
 const User = mongoose.model('User', userSchema);
 
-const Admin = User.discriminator('admin', adminSchema );
-const Candidate = User.discriminator('candidate', candidateSchema);
-const Recruiter = User.discriminator('recruiter', recruiterSchema);
+// const Admin = User.discriminator('admin', adminSchema );
+// const Candidate = User.discriminator('candidate', candidateSchema);
+// const Recruiter = User.discriminator('recruiter', recruiterSchema);
 
-module.exports = { User, Admin, Candidate, Recruiter };
+module.exports = { User };
