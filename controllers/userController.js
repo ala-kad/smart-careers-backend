@@ -1,4 +1,5 @@
 const asyncHandler = require('express-async-handler');
+const bcrypt = require('bcrypt');
 
 const { User } = require('../models/user');
 
@@ -20,21 +21,50 @@ const getOneUser = async (req, res)  => {
     }
 }
 
-const updateUser = async (req, res) => { 
+const getEnabledUsers = async(req, res) => { 
+    try { 
+        const users = await User.find({ enabled: true })
+        res.status(200).json(users); 
+    }catch(err) {
+        console.log(err.message);
+    }
+} 
+
+const updateUserRole = async (req, res) => { 
     try{ 
-        await User.findByIdAndUpdate(req.params.id, req.body);
-        res.status(200).send(`User updated`);
+        const user = await User.findById(req.params.id);
+        const userId = user._id;
+        if(!user) { return res.status(404).json('User not found') }
+        else { 
+            // const userRole = user.role;
+            //TO-DO Consider removing role or adding new roles to the array
+            user.role = req.body ;
+            await user.save();
+            res.status(201).send('User updated');
+        }
     }catch(error){
-        res.status(400).send(error);
+        return res.status(400).json(error.message);
     }
 }
 
 const deleteUser = async (req, res) => { 
     try {
         const user = await User.findById(req.params.id);
-        if(!user) { return res.status(404).send(`User not found`) };
+        if(!user) { return res.status(404).json(`User not found`) };
         await user.deleteOne();
-        return res.status(200).send(`User deleted`);
+        return res.status(200).json(`User deleted`);
+    }catch(err) { 
+        return res.status(500).send(err);
+    }
+}
+
+const disableUser = async (req, res) => { 
+    try {
+        const user = await User.findById(req.params.id);
+        if(!user) { return res.status(404).json(`User not found`) };
+        user.enabled = false;
+        await user.save()
+        return res.status(200).json(`User disabled`);
     }catch(err) { 
         return res.status(500).send(err);
     }
@@ -49,4 +79,4 @@ const assignRolesToUser = async() => {
     
 }
 
-module.exports = { getAllUsers, getOneUser, updateUser, deleteUser, deleteAll }; 
+module.exports = { getAllUsers, getOneUser, updateUserRole, deleteUser, deleteAll, disableUser, getEnabledUsers }; 
