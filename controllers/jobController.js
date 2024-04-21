@@ -3,27 +3,27 @@ const Job = require('../models/job');
 const createJob = async (req, res) => { 
     try {
         const job = await Job.create(req.body);
-        res.status(201).json({ job });
+        res.status(201).json(job);
     } catch (error) {
-        res.status(500).json({ error });
+        res.status(500).json(error);
     }
 };
 
 const getAllJobs = async (req, res) => { 
     try{
         const jobs = await Job.find();
-        res.status(201).json({ jobs });
+        res.status(201).json(jobs);
     } catch (error) {
-        res.status(500).json({ error });
+        res.status(500).json(error);
     }
 };
 
 const getOneJob = async (req, res) => { 
     try{
         const job = await Job.findById(req.params.id);
-        res.status(201).json({ job });
+        res.status(201).json(job);
     } catch (error) {
-        res.status(500).json({ error });
+        res.status(500).json(error);
     }
 };
 
