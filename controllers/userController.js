@@ -23,7 +23,12 @@ const getOneUser = async (req, res)  => {
 
 const getEnabledUsers = async(req, res) => { 
     try { 
-        const users = await User.find({ enabled: true })
+        const users = await User.find({ 
+            $and: [
+                { enabled: true }, 
+                { role: { $ne: 'admin' } } 
+            ] 
+        })
         res.status(200).json(users); 
     }catch(err) {
         console.log(err.message);
@@ -33,17 +38,15 @@ const getEnabledUsers = async(req, res) => {
 const updateUserRole = async (req, res) => { 
     try{ 
         const user = await User.findById(req.params.id);
-        const userId = user._id;
-        if(!user) { return res.status(404).json('User not found') }
+
+        if(!user) { return res.status(404).send('User not found') }
         else { 
-            // const userRole = user.role;
-            //TO-DO Consider removing role or adding new roles to the array
             user.role = req.body ;
             await user.save();
             res.status(201).send('User updated');
         }
     }catch(error){
-        return res.status(400).json(error.message);
+        return res.status(400).json(error);
     }
 }
 
