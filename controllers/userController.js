@@ -35,6 +35,15 @@ const getEnabledUsers = async(req, res) => {
     }
 } 
 
+const getDisabledUsers = async(req, res) => {
+    try{ 
+        return res.status(200).send( await User.find({ enabled: false }))
+    }catch(err){ 
+        console.log(err);
+        return res.status(500).send(err);
+    }
+}
+
 const updateUserRole = async (req, res) => { 
     try{ 
         const user = await User.findById(req.params.id);
@@ -82,4 +91,4 @@ const assignRolesToUser = async() => {
     
 }
 
-module.exports = { getAllUsers, getOneUser, updateUserRole, deleteUser, deleteAll, disableUser, getEnabledUsers }; 
+module.exports = { getAllUsers, getOneUser, updateUserRole, deleteUser, deleteAll, disableUser, getEnabledUsers, getDisabledUsers }; 
