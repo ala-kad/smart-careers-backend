@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 
 var { registerUser, loginUser, registerRecruiter } = require('../controllers/authController') ;
-var { getAllUsers, getOneUser, updateUserRole, deleteUser, deleteAll, disableUser, getEnabledUsers } = require('../controllers/userController.js');
+var { getAllUsers, getOneUser, updateUserRole, deleteUser, deleteAll, disableUser, getEnabledUsers, getDisabledUsers } = require('../controllers/userController.js');
 
 
 var rbac = require('../middlewares/rbac') ;
@@ -42,6 +42,8 @@ router.post('/login', loginUser);
 router.get('/', getAllUsers);
 
 router.get('/enabled', getEnabledUsers)
+
+router.get('/disabled', getDisabledUsers);
 
 /* GET one user. */
 router.get('/:id', getOneUser)
