@@ -23,6 +23,7 @@
     "mongoose": "^8.2.2",
     "mongoose-hrbac": "^4.0.1",
     "morgan": "~1.9.1",
+    "nodemon": "^3.1.0",
     "openai": "^4.33.1",
     "passport": "^0.7.0",
     "passport-local": "^1.0.0",
