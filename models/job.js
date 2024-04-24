@@ -14,6 +14,11 @@ const jobSchema = new mongoose.Schema({
         type: Date,
         default: Date.now()
     },
+    status: {
+        type: String,
+        default: "Draft",
+        enum: ['Draft', 'Published', 'Preselection', 'Hr_validation', 'Selection_test', 'Selection', 'Archived', 'Cancelled']
+    }
 }, { versionKey: false });
 
 const Job = mongoose.model('Job', jobSchema);
