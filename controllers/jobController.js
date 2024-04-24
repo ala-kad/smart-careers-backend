@@ -11,21 +11,16 @@ const createJob = async (req, res) => {
 
 const getAllJobs = async (req, res) => { 
     try{
-        console.log('Req Params', req.params.status);
-        console.log('Req Query', req.query.status);
         switch(req.query.status) { 
             case 'Draft': 
-                console.log('Draft');
                 const draftJobs = await Job.find({ status: 'Draft'});
                 res.status(200).json(draftJobs);
             break;
             case 'Published':
-                console.log('Published');
                 const publishedJobs = await Job.find({ status: 'Published'});
                 res.status(200).json(publishedJobs);
             break;
             default: 
-                console.log('Default');
                 const jobs = await Job.find();
                 res.status(200).json(jobs);
             break;
@@ -77,7 +72,6 @@ const publishJob = async(req, res) => {
         await job.save()
         .then(
             updatedJob => {
-                console.log(updatedJob);
                 res.status(201).json('Job status updated');
         })
 
