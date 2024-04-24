@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
-const { createJob, getAllJobs, getOneJob, updateJob, deleteJob } = require('../controllers/jobController');
+const { createJob, getAllJobs, getOneJob, updateJob, deleteJob, publishJob } = require('../controllers/jobController');
 
 /**
  *  Create Job
@@ -19,10 +19,14 @@ router.get('/', getAllJobs);
 router.get('/:id', getOneJob);
 
 /**
- * Updtae job
+ * Update job
  */
 router.patch('/:id', updateJob);
 
+/**
+ * Publish Job to Public
+ */
+router.patch('/publish/:id', publishJob);
 /**
  * Delete job
  */
