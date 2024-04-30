@@ -2,10 +2,12 @@ const mongoose = require('mongoose');
 
 const jobSchema = new mongoose.Schema({
     title: String, 
-    company: String,
     skills: [String],
     requiredExperience: Number,
     description: String, 
+    profile: String,
+    benefits: String,
+    questions: [String],
     location: {
        type: String,
        enum: ['onsite', 'hybrid', 'remote']
@@ -19,7 +21,7 @@ const jobSchema = new mongoose.Schema({
         default: "Draft",
         enum: ['Draft', 'Published', 'Preselection', 'Hr_validation', 'Selection_test', 'Selection', 'Archived', 'Cancelled']
     }
-}, { versionKey: false });
+}, { versionKey: false, timestamp: true });
 
 const Job = mongoose.model('Job', jobSchema);
 
