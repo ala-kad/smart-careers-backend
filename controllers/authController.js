@@ -69,7 +69,7 @@ exports.loginUser = async (req, res) => {
     try { 
         const { email, password } = req.body;
         const user = await User.findOne({ email: email }) ; 
-        if(!user) { return res.status(404).send(`User not found`) };
+        if(!user) { return res.status(404).send(`Wrong Email`) };
         const validPass = await bcrypt.compare(password, user.password); 
         if(!validPass) { return res.status(401).send(`Wrong password`) } 
         else { 
