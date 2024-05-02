@@ -6,7 +6,7 @@ const roles = require('../models/roles');
 
 exports.registerUser =  async (req, res) => {
     try { 
-        const { email, username, password } = req.body;
+        const { email, username, password, confirmPass } = req.body;
 
         const usr = await User.findOne({ email: email });
         if(usr) { res.status(400).send(`User already exists`) }
@@ -19,6 +19,7 @@ exports.registerUser =  async (req, res) => {
                     email, 
                     username, 
                     password: hash, 
+                    confirmationPass: hash,
                     role: roles[3].name
                 }) 
                 .then((user) => { 
@@ -36,10 +37,10 @@ exports.registerUser =  async (req, res) => {
 
 exports.registerRecruiter =  async (req, res) => {
     try { 
-        const { email, username, password } = req.body;
+        const { email, username, password, confirmationPass } = req.body;
 
         const usr = await User.findOne({ email: email });
-        if(usr) { res.status(400).send(`User already exists`) }
+        if(usr) { res.status(400).send(`Recruiter already exists`) }
         else { 
             bcrypt.hash(password, 10, async (err, hash) => {
                 if(err) { 
@@ -49,6 +50,7 @@ exports.registerRecruiter =  async (req, res) => {
                     email, 
                     username,
                     password: hash, 
+                    confirmationPass: hash,
                     role: roles[0].name
                 }) 
                 .then((user) => { 
