@@ -11,6 +11,8 @@
   "dependencies": {
     "@casl/ability": "^6.7.0",
     "@casl/mongoose": "^7.2.2",
+    "@google/generative-ai": "^0.9.0",
+    "@huggingface/inference": "^2.6.7",
     "bcrypt": "^5.1.1",
     "cookie-parser": "~1.4.4",
     "cors": "^2.8.5",
