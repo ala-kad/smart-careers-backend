@@ -1,12 +1,14 @@
 const express = require('express');
 const router = express.Router();
 
-const { createJob, getAllJobs, getOneJob, updateJob, deleteJob, publishJob } = require('../controllers/jobController');
+const { createJob, getAllJobs, getOneJob, updateJob, deleteJob, publishJob, generateJobText } = require('../controllers/jobController');
 
 /**
  *  Create Job
  */
 router.post('/', createJob);
+
+router.post('/genIA', generateJobText)
 
 /**
  * Job listing
