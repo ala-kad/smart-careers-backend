@@ -1,8 +1,20 @@
+const { GoogleGenerativeAI } = require("@google/generative-ai");
+// Access your API key as an environment variable (see "Set up your API key" above)
+const genAI = new GoogleGenerativeAI(process.env.API_KEY);
+
+
 const Job = require('../models/job'); 
 
 const createJob = async (req, res) => { 
+    const { title, responsibilities, qualificationsSkills, salaryBenefits, workEnv} = req.body 
     try {
-        const job = await Job.create(req.body);
+        const job = await Job.create({
+            title: title,
+            responsibilities: responsibilities,
+            skillsQualitfications: qualificationsSkills,
+            benefits: salaryBenefits,
+            location: workEnv
+        });
         res.status(201).json(job);
     } catch (error) {
         res.status(500).json(error);
@@ -80,4 +92,43 @@ const publishJob = async(req, res) => {
     }
 }
 
-module.exports = { createJob, getAllJobs, getOneJob, updateJob, deleteJob, publishJob } ; 
+
+const generateJobText = async(req, res) => { 
+    try{
+        const generationConfig = {
+          temperature: 0.5,
+          topK: 0,
+          topP: 1,
+          maxOutputTokens: 2048,
+        };
+        const model = genAI.getGenerativeModel({ model: "gemini-1.0-pro", generationConfig: generationConfig }, );
+        const { title, responsibilities, qualificationsSkills, salaryBenefits, workEnv } = req.body;
+        const prompt = 
+        `
+          You are now RecruiterGPT a seasoned world-class recruiter with over 20+ years of exepreince in rectuiting. 
+          As RecruiterGPT, your roles are: 
+          To generate concise job offers.
+          Please include an introduction first in the description, 
+          Based on the following informations and structure in JSON Format : 
+              -JSON: Title: ${title}, 
+              -JSON: Responsibiliteis: ${responsibilities}, 
+              -JSON: Qualifications and Skills: ${qualificationsSkills}, 
+              -JSON: Salary and Benfits: ${salaryBenefits}, 
+              -JSON: Work mode and culture: ${workEnv}
+          Generate a job description , in HTML format that will be used in a WYSIWYG rich-text editor 
+          Eleminate line brakes characters and any special characters from the response text that does not relate to the context of recruiting and job posting
+        `;
+
+        const result = await model.generateContent(prompt);
+        const response = await result.response;
+        const text = response.text();
+        const resultat = JSON.stringify(text)
+        console.log(text)
+        res.status(200).json(text);
+    }catch(err) { 
+        res.status(500).send(err.message)
+        console.log(err)
+    }
+}
+
+module.exports = { createJob, getAllJobs, getOneJob, updateJob, deleteJob, publishJob, generateJobText } ; 
