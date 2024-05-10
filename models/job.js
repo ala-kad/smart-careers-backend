@@ -2,16 +2,14 @@ const mongoose = require('mongoose');
 
 const jobSchema = new mongoose.Schema({
     title: String, 
-    skills: [String],
-    requiredExperience: Number,
-    description: String, 
-    profile: String,
+    responsibilities: String,
+    skillsQualitfications: String,   
     benefits: String,
-    questions: [String],
     location: {
-       type: String,
-       enum: ['onsite', 'hybrid', 'remote']
+        type: String,
+        enum: ['Onsite', 'Hybrid', 'Remote']
     },
+    questions: [String],
     publishedOn: {
         type: Date,
         default: Date.now()
