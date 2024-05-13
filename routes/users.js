@@ -1,7 +1,7 @@
 var express = require('express');
 var router = express.Router();
 
-var { registerUser, loginUser, registerRecruiter } = require('../controllers/authController') ;
+var { registerCandidate, loginUser, registerRecruiter } = require('../controllers/authController') ;
 var { getAllUsers, getOneUser, updateUserRole, deleteUser, deleteAll, disableUser, getEnabledUsers, getDisabledUsers } = require('../controllers/userController.js');
 
 
@@ -31,7 +31,7 @@ passport.use(new LocalStrategy (
 ))
 
 /* Add user . */
-router.post('/', registerUser);
+router.post('/candidate', registerCandidate);
 
 router.post('/recruiter', registerRecruiter)
 

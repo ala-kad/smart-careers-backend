@@ -4,7 +4,7 @@ var jwt = require('jsonwebtoken');
 var { User } = require('../models/user');
 const roles = require('../models/roles');
 
-exports.registerUser =  async (req, res) => {
+exports.registerCandidate =  async (req, res) => {
     try { 
         const { email, username, password, confirmPass } = req.body;
 
@@ -65,7 +65,6 @@ exports.registerRecruiter =  async (req, res) => {
         res.status(500).send(error.message);
     }
 }
-
 
 exports.loginUser = async (req, res) => { 
     try { 
