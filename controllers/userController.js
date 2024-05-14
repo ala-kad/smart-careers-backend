@@ -24,11 +24,13 @@ const getOneUser = async (req, res)  => {
 const getEnabledUsers = async(req, res) => { 
     try { 
         const users = await User.find({ 
-            $and: [
+            $and: [                
+                { role: { $ne: 'admin' } } ,
+                { role: { $ne: 'candidate' } } ,
                 { enabled: true }, 
-                { role: { $ne: 'admin' } } 
             ] 
         })
+        console.log(users)
         res.status(200).json(users); 
     }catch(err) {
         console.log(err.message);
