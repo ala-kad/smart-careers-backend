@@ -8,7 +8,6 @@ var app = require('../app');
 var debug = require('debug')('smart-careers-backend:server');
 var http = require('http');
 var connect = require('../config/db');
-var { initAdminAccount }  = require('../config/init');
 /**
  * Get port from environment and store in Express.
  */

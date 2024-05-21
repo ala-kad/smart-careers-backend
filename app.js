@@ -1,26 +1,38 @@
+/**
+ * Packges
+ */
 var express = require('express');
+var app = express();
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var session = require('express-session');
 var cors = require('cors');
-const rbac = require('./middlewares/rbac');
+var rbac = require('./middlewares/rbac');
+var passport = require('passport');
+var passportConfig= require('./config/passport');
 
+/**
+ * Routes
+ */
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var jobsRouter = require('./routes/jobs');
 var rolesRouter = require('./routes/role');
+var applicationsRouter = require('./routes/application');
 
-
-const passport = require('passport');
-const passportConfig= require('./config/passport');
-
-var app = express();
+/**
+ * Middlewares
+ */
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'public', 'uploads')));
+app.use(express.static(path.join(__dirname, 'public', 'images')));
+app.use(cors());
+app.use(passport.initialize(passportConfig));
 app.use(session({
     secret: 'keyboard cat',
     resave: false,
@@ -41,20 +53,14 @@ app.use(session({
     
 // app.use(limiter);
 
-app.use(cors());
-app.use(passport.initialize(passportConfig))
 
+/**
+ * Routes
+ */
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/jobs', jobsRouter);
 app.use('/roles', rbac.authUser, rbac.authAdmin, rolesRouter);
-
-const { initAdminAccount } = require("./config/init");
-
-async function start() { 
-    await initAdminAccount();
-}
-
-start();
+app.use('/applications', applicationsRouter)
 
 module.exports = app;
