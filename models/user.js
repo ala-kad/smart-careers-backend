@@ -11,12 +11,15 @@ const userSchema = new mongoose.Schema({
         required: true,
         unique: true
     },
-    username: String,
-    password: {
+    firstname: {
         type: String,
         required: true
     },
-    confirmationPass: {
+    lastname: {
+        type: String,
+        required: true
+    },
+    password: {
         type: String,
         required: true
     },
@@ -24,11 +27,18 @@ const userSchema = new mongoose.Schema({
         type: [String],
         enum: roles.map((role) => role.name)
     },
+    avatar: String,
+    phone: Number,
+    adress: String,
+    resumes: [{ 
+        type: mongoose.Types.ObjectId,
+        ref: 'Resume'
+    }],
     enabled: {
         type: Boolean,
         default: true
     }
-},{ versionKey: false});
+}, { versionKey: false });
 
 /**
  * Admin Schema
@@ -65,11 +75,6 @@ const recruiterSchema = new mongoose.Schema({
 }, {discriminatorKey: 'role'});
 
 
-// userSchema.plugin(passportLocalMongoose)
 const User = mongoose.model('User', userSchema);
 
-// const Admin = User.discriminator('admin', adminSchema );
-// const Candidate = User.discriminator('candidate', candidateSchema);
-// const Recruiter = User.discriminator('recruiter', recruiterSchema);
-
-module.exports = { User };
+module.exports = User ;

@@ -18,6 +18,9 @@ const jobSchema = new mongoose.Schema({
         type: String,
         default: "Draft",
         enum: ['Draft', 'Published', 'Preselection', 'Hr_validation', 'Selection_test', 'Selection', 'Archived', 'Cancelled']
+    },
+    description: {
+        type: String
     }
 }, { versionKey: false, timestamp: true });
 

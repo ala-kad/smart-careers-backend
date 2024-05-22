@@ -1,7 +1,10 @@
 const mongoose = require('mongoose');
 
-const applicationSchema = new mongoose.schema({
-    appplicationDat: string,
+const applicationSchema =  new mongoose.Schema({
+    appplicationDate: {
+        type: Date,
+        default: Date.now()
+    },
     candidateId: { 
         type: mongoose.Types.ObjectId,
         ref: 'user'
@@ -10,9 +13,18 @@ const applicationSchema = new mongoose.schema({
         type: mongoose.Types.ObjectId,
         ref: 'Job'
     },
-    cv: String,
-    avatarPic: String
-})
+    responses: {
+        type: [String]
+    },
+    status: { 
+        type: String,
+        default: 'Ongoing'
+    },
+    resume: {
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: 'Resume'
+    }
+}, { versionKey: false })
 
 const Application = mongoose.model('Application', applicationSchema);
 
