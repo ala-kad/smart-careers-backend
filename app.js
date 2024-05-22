@@ -30,6 +30,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'public', 'uploads')));
+app.use(express.static(path.join(__dirname, 'public', 'uploads', 'cvs')));
 app.use(express.static(path.join(__dirname, 'public', 'images')));
 app.use(cors());
 app.use(passport.initialize(passportConfig));
