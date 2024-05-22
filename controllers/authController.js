@@ -6,8 +6,7 @@ const roles = require('../models/roles');
 
 exports.registerCandidate =  async (req, res) => {
     try { 
-        const { email, username, password, confirmPass } = req.body;
-
+        const { email, firstname, lastname, password, confirmPass } = req.body;
         const usr = await User.findOne({ email: email });
         if(usr) { res.status(400).send(`User already exists`) }
         else { 
@@ -16,8 +15,9 @@ exports.registerCandidate =  async (req, res) => {
                     res.status(500).send(err)
                 }
                 await User.create({ 
-                    email, 
-                    username, 
+                    email: email, 
+                    firstname: firstname, 
+                    lastname: lastname,
                     password: hash, 
                     confirmationPass: hash,
                     role: roles[3].name

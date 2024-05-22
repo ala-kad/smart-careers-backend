@@ -6,14 +6,16 @@ const genAI = new GoogleGenerativeAI(process.env.API_KEY);
 const Job = require('../models/job'); 
 
 const createJob = async (req, res) => { 
-    const { title, responsibilities, qualificationsSkills, salaryBenefits, workEnv} = req.body 
+    const { title, responsibilities, qualificationsSkills, salaryBenefits, workEnv, questions, description} = req.body 
+    console.log(req.body);
     try {
         const job = await Job.create({
             title: title,
             responsibilities: responsibilities,
             skillsQualitfications: qualificationsSkills,
             benefits: salaryBenefits,
-            location: workEnv
+            location: workEnv,
+            questions: questions,
         });
         res.status(201).json(job);
     } catch (error) {
@@ -50,6 +52,16 @@ const getOneJob = async (req, res) => {
         res.status(500).json(error);
     }
 };
+
+const getJobQuestions = async (req, res) => { 
+    try{
+        let job = await Job.findById(req.params.id); 
+        let questions = job.questions; 
+        res.status(200).send(questions);
+    } catch(err) {
+        res.status(500).send(err);
+    }
+}
 
 const updateJob = async (req, res) => { 
     try{
@@ -118,17 +130,13 @@ const generateJobText = async(req, res) => {
           Generate a job description , in HTML format that will be used in a WYSIWYG rich-text editor 
           Eleminate line brakes characters and any special characters from the response text that does not relate to the context of recruiting and job posting
         `;
-
         const result = await model.generateContent(prompt);
         const response = await result.response;
         const text = response.text();
-        const resultat = JSON.stringify(text)
-        console.log(text)
         res.status(200).json(text);
     }catch(err) { 
         res.status(500).send(err.message)
-        console.log(err)
     }
 }
 
-module.exports = { createJob, getAllJobs, getOneJob, updateJob, deleteJob, publishJob, generateJobText } ; 
+module.exports = { createJob, getAllJobs, getOneJob, getJobQuestions, updateJob, deleteJob, publishJob, generateJobText } ; 

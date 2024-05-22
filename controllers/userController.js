@@ -1,7 +1,5 @@
 const asyncHandler = require('express-async-handler');
-const bcrypt = require('bcrypt');
-
-const { User } = require('../models/user');
+const  User = require('../models/user');
 
 const getAllUsers = async (req, res)  => { 
     try {
@@ -16,7 +14,8 @@ const getOneUser = async (req, res)  => {
     try {
         const user = await User.findById(req.params.id);
         res.status(200).send(user);
-    } catch (error) {
+    } catch (error) {        
+        console.log(error)
         res.status(500).send(error);
     }
 }
@@ -89,8 +88,13 @@ const deleteAll = asyncHandler(async(req, res) => {
     res.status(200).send(`Users deleted`);
 })
 
-const assignRolesToUser = async() => { 
-    
+const getCandidateInfos = async(req, res) => {
+    try{
+        let candidate = await User.findById(req.params.userId);
+        res.status(200).send(candidate);
+    } catch(err) {
+        res.status(500).send(err)
+    }
 }
 
-module.exports = { getAllUsers, getOneUser, updateUserRole, deleteUser, deleteAll, disableUser, getEnabledUsers, getDisabledUsers }; 
+module.exports = { getAllUsers, getOneUser, updateUserRole, deleteUser, deleteAll, disableUser, getEnabledUsers, getDisabledUsers, getCandidateInfos }; 
