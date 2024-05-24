@@ -6,9 +6,10 @@ const genAI = new GoogleGenerativeAI(process.env.API_KEY);
 const Job = require('../models/job'); 
 
 const createJob = async (req, res) => { 
-    const { title, responsibilities, qualificationsSkills, salaryBenefits, workEnv, questions, description} = req.body 
-    console.log(req.body);
+    const { title, responsibilities, qualificationsSkills, salaryBenefits, workEnv, questions } = req.body 
     try {
+        const { recruiterId } = req.query;
+        console.log('Query params', req.query);
         const job = await Job.create({
             title: title,
             responsibilities: responsibilities,
@@ -16,6 +17,7 @@ const createJob = async (req, res) => {
             benefits: salaryBenefits,
             location: workEnv,
             questions: questions,
+            recruiterId: recruiterId,
         });
         res.status(201).json(job);
     } catch (error) {
@@ -108,7 +110,7 @@ const publishJob = async(req, res) => {
 const generateJobText = async(req, res) => { 
     try{
         const generationConfig = {
-          temperature: 0.5,
+          temperature: 0,
           topK: 0,
           topP: 1,
           maxOutputTokens: 2048,
@@ -121,7 +123,7 @@ const generateJobText = async(req, res) => {
           As RecruiterGPT, your roles are: 
           To generate concise job offers.
           Please include an introduction first in the description, 
-          Based on the following informations and structure in JSON Format : 
+          Based on the following informations and structure in JSON Format, please genrate concise and professional response : 
               -JSON: Title: ${title}, 
               -JSON: Responsibiliteis: ${responsibilities}, 
               -JSON: Qualifications and Skills: ${qualificationsSkills}, 

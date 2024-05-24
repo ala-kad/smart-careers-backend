@@ -21,6 +21,10 @@ const jobSchema = new mongoose.Schema({
     },
     description: {
         type: String
+    },
+    recruiterId: { 
+        type: mongoose.Types.ObjectId,
+        ref: 'User'
     }
 }, { versionKey: false, timestamp: true });
 
