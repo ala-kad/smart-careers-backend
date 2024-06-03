@@ -1,26 +1,36 @@
 const { GoogleGenerativeAI } = require("@google/generative-ai");
-// Access your API key as an environment variable (see "Set up your API key" above)
 const genAI = new GoogleGenerativeAI(process.env.API_KEY);
 
-
 const Job = require('../models/job'); 
+const Question = require('../models/questions');
 
 const createJob = async (req, res) => { 
     const { title, responsibilities, qualificationsSkills, salaryBenefits, workEnv, questions } = req.body 
     try {
         const { recruiterId } = req.query;
-        console.log('Query params', req.query);
-        const job = await Job.create({
+
+        await Job.create({
             title: title,
             responsibilities: responsibilities,
             skillsQualitfications: qualificationsSkills,
             benefits: salaryBenefits,
             location: workEnv,
-            questions: questions,
             recruiterId: recruiterId,
-        });
-        res.status(201).json(job);
-    } catch (error) {
+        })
+        .then((j) => {
+            const reformatQuestion = questions.map((item) =>({...item, jobId: j._id}))
+            console.log('Reformed Questions:', reformatQuestion);
+
+            Question.insertMany(reformatQuestion)
+            .then((q) => console.log(q))
+            .catch((err) => console.log(err))
+
+            res.status(201).json(j);
+        } )
+        .catch((err) => console.log(err))
+
+       
+    }catch (error) {
         res.status(500).json(error);
     }
 };
@@ -58,7 +68,7 @@ const getOneJob = async (req, res) => {
 const getJobQuestions = async (req, res) => { 
     try{
         let job = await Job.findById(req.params.id); 
-        let questions = job.questions; 
+        let questions = await Question.find({ jobId: job._id }); 
         res.status(200).send(questions);
     } catch(err) {
         res.status(500).send(err);
