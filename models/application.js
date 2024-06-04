@@ -13,9 +13,10 @@ const applicationSchema =  new mongoose.Schema({
         type: mongoose.Types.ObjectId,
         ref: 'Job'
     },
-    responses: {
-        type: [String]
-    },
+    responses: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Response'
+    }],
     status: { 
         type: String,
         default: 'Ongoing'

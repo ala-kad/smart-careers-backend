@@ -9,7 +9,6 @@ const jobSchema = new mongoose.Schema({
         type: String,
         enum: ['Onsite', 'Hybrid', 'Remote']
     },
-    questions: [String],
     publishedOn: {
         type: Date,
         default: Date.now()
@@ -17,7 +16,7 @@ const jobSchema = new mongoose.Schema({
     status: {
         type: String,
         default: "Draft",
-        enum: ['Draft', 'Published', 'Preselection', 'Hr_validation', 'Selection_test', 'Selection', 'Archived', 'Cancelled']
+        enum: ['Draft', 'Published', 'Preselection', 'Hr_validation', 'Selection_test', 'Selection', 'Archived', 'Cancelled', 'Reviewing Applications']
     },
     description: {
         type: String

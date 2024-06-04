@@ -1,10 +1,18 @@
 var express = require('express');
 var router = express.Router();
-var { sendApplication, listCandidateApplications } = require('../controllers/applicationsController');
-var { uploadAvatar, uploadCv } = require('../middlewares/multer-config');
+var { listCandidateApplications, stepOneApplication, respondQuestions, submitJobApplication, checkIfCandidateApplied } = require('../controllers/applicationsController');
+var { uploadCv } = require('../middlewares/multer-config');
 
-router.post('', uploadCv, sendApplication);
+
+router.post('/upload-cv', uploadCv, stepOneApplication);
+
+router.post('/responses', respondQuestions);
+
+router.get('/apply', submitJobApplication);
 
 router.get('', listCandidateApplications);
+
+router.get('/check-if-applied', checkIfCandidateApplied);
+
 
 module.exports = router;

@@ -19,17 +19,9 @@ const createJob = async (req, res) => {
         })
         .then((j) => {
             const reformatQuestion = questions.map((item) =>({...item, jobId: j._id}))
-            console.log('Reformed Questions:', reformatQuestion);
-
             Question.insertMany(reformatQuestion)
-            .then((q) => console.log(q))
-            .catch((err) => console.log(err))
-
             res.status(201).json(j);
-        } )
-        .catch((err) => console.log(err))
-
-       
+        } )       
     }catch (error) {
         res.status(500).json(error);
     }
@@ -68,7 +60,7 @@ const getOneJob = async (req, res) => {
 const getJobQuestions = async (req, res) => { 
     try{
         let job = await Job.findById(req.params.id); 
-        let questions = await Question.find({ jobId: job._id }); 
+        let questions = await Question.find({ jobId: job._id }).populate('jobId');
         res.status(200).send(questions);
     } catch(err) {
         res.status(500).send(err);
