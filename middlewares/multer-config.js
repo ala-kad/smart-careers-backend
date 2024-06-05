@@ -30,10 +30,10 @@ const cvStorage = multer.diskStorage({
     callback(null, 'public', 'uploads', 'cvs');
   },
   filename: (req, file, callback) => {
-    console.log(file)
-    const name = file.originalname.split(' ').join('_');
+    const name = file.originalname.split(' ').join('_').split('.').slice(0, -1).join('.');
     const extension = MIME_TYPES_CV[file.mimetype];
-    callback(null, name + Date.now() + '.' + extension);
+    const date = new Date().toISOString().slice(0, 10); // Get current date in YYYY-MM-DD format
+    callback(null, `${name}_${date}.${extension}`);
   }
 });
 

@@ -17,7 +17,7 @@ const initAdminAccount = async() => {
                     email: 'kaddechiala@gmail.com',
                     username: 'alakad',
                     password: hash,
-                    role: 'admin'
+                    role: ['admin']
                 });
                 await admin.save();
                console.log('Admin created');
