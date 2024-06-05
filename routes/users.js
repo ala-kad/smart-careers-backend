@@ -11,6 +11,7 @@ var passportConfig = require('../config/passport');
 var passport = require('passport')
 var LocalStrategy = require('passport-local');
 
+var { verifyToken } = require('../middlewares/autorization');
 
 // Auth func Passport Local (user + pass) - TO-CHECK
 passport.use(new LocalStrategy (
@@ -33,7 +34,7 @@ passport.use(new LocalStrategy (
 /* Add user . */
 router.post('/candidate', registerCandidate);
 
-router.post('/recruiter', registerRecruiter)
+router.post('/recruiter', verifyToken, registerRecruiter)
 
 /* Login user */ 
 router.post('/login', loginUser);
