@@ -136,4 +136,22 @@ const checkIfCandidateApplied = async(req, res) => {
     }
 }
 
-module.exports = { listCandidateApplications, stepOneApplication, respondQuestions, submitJobApplication, checkIfCandidateApplied };
+const listApplicationsByJobId = async(req, res) => { 
+    try{
+        const { jobId } = req.query;
+        console.log(jobId)
+        let applications = await Application.find({ jobId: jobId })
+        .populate(['jobId', 'responses', 'resume', 'candidateId']);
+        // .populate('responses')
+        // .populate('resume')
+        // .populate('candidateId');
+
+        console.log(applications)
+        res.status(200).json(applications);
+    }catch(err) { 
+        console.log(err)
+        res.status(500).json(err);
+    }
+}
+
+module.exports = { listCandidateApplications, stepOneApplication, respondQuestions, submitJobApplication, checkIfCandidateApplied, listApplicationsByJobId };

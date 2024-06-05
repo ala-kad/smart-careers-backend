@@ -56,6 +56,7 @@ const updateUserRole = async (req, res) => {
             res.status(201).send('User updated');
         }
     }catch(error){
+        console.log(error)
         return res.status(400).json(error);
     }
 }

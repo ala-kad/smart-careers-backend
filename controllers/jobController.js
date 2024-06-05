@@ -60,7 +60,7 @@ const getOneJob = async (req, res) => {
 const getJobQuestions = async (req, res) => { 
     try{
         let job = await Job.findById(req.params.id); 
-        let questions = await Question.find({ jobId: job._id }).populate('jobId');
+        let questions = await Question.find({ jobId: job._id });
         res.status(200).send(questions);
     } catch(err) {
         res.status(500).send(err);

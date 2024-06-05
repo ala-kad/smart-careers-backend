@@ -1,12 +1,12 @@
 var bcrypt = require('bcrypt');
 var jwt = require('jsonwebtoken'); 
 
-var { User } = require('../models/user');
+var  User = require('../models/user');
 const roles = require('../models/roles');
 
 exports.registerCandidate =  async (req, res) => {
     try { 
-        const { email, firstname, lastname, password, confirmPass } = req.body;
+        const { email, firstname, lastname, password } = req.body;
         const usr = await User.findOne({ email: email });
         if(usr) { res.status(400).send(`User already exists`) }
         else { 
@@ -37,7 +37,7 @@ exports.registerCandidate =  async (req, res) => {
 
 exports.registerRecruiter =  async (req, res) => {
     try { 
-        const { email, username, password, confirmationPass } = req.body;
+        const { email, password } = req.body;
 
         const usr = await User.findOne({ email: email });
         if(usr) { res.status(400).send(`Recruiter already exists`) }
@@ -46,19 +46,14 @@ exports.registerRecruiter =  async (req, res) => {
                 if(err) { 
                     res.status(500).send(err)
                 }
-                await User.create({ 
+                const user = await User.create({ 
                     email, 
-                    username,
                     password: hash, 
                     confirmationPass: hash,
                     role: roles[0].name
                 }) 
-                .then((user) => { 
-                    res.status(201).send(user);
-                }).catch((err) => { 
-                    res.status(500).send(err)
-                })
-                
+                await user.save();                    
+                res.status(201).send(user)
             })
         }
     }catch(error) { 
@@ -80,7 +75,7 @@ exports.loginUser = async (req, res) => {
                 username: user.username,
                 role: user.role
             }
-            const token = jwt.sign(payload, process.env.JWT_KEY, { expiresIn: '5 days'}); 
+            const token = jwt.sign(payload, process.env.JWT_KEY, { expiresIn: '3d' }); 
             return res.status(200).json({message: 'Logged in', token})
         }
     }catch(err) { 
