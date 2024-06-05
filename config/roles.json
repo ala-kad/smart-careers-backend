@@ -1,0 +1,28 @@
+{
+    "roles": [
+      {
+        "name": "admin",
+        "permissions": [
+          "create_record",
+          "read_record",
+          "update_record",
+          "delete_record"
+        ]
+      },
+      {
+        "name": "recruiter",
+        "permissions": [
+          "create_record",
+          "read_record",
+          "update_record"
+        ]
+      },
+      {
+        "name": "candidate",
+        "permissions": [
+          "create_record",
+          "read_record"
+        ]
+      }
+    ]
+  }

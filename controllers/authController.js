@@ -1,12 +1,12 @@
 var bcrypt = require('bcrypt');
 var jwt = require('jsonwebtoken'); 
 
-var { User, Admin, Candidate, Recruiter } = require('../models/user');
+var  User = require('../models/user');
+const roles = require('../models/roles');
 
-exports.registerUser =  async (req, res) => {
+exports.registerCandidate =  async (req, res) => {
     try { 
-        const { email, username, password, role, ...roleFields } = req.body;
-
+        const { email, firstname, lastname, password } = req.body;
         const usr = await User.findOne({ email: email });
         if(usr) { res.status(400).send(`User already exists`) }
         else { 
@@ -14,33 +14,50 @@ exports.registerUser =  async (req, res) => {
                 if(err) { 
                     res.status(500).send(err)
                 }
-                switch (role) {
-                    case 'admin':
-                        var usr = await Admin.create({ email, username, password: hash, role, ...roleFields }) ; 
-                        res.status(201).json(usr);
-                        break;
-                    case 'recruiter':
-                        var usr = await Recruiter.create({ email, username, password: hash, role, ...roleFields }) ;
-                        res.status(201).json(usr);
-                        break;
-                    case 'candidate':
-                        var usr = await Candidate.create({email, username, password: hash, role, ...roleFields}) ;
-                        res.status(201).json(usr);
-                        break;
-                    default: 
-                        await User.create({ email, username,  password: hash, role }) 
-                        .then((user) => { 
-                            res.status(201).send(user);
-                        }).catch((err) => { 
-                            res.status(500).send(err)
-                        })
-                        break;
-                }
+                await User.create({ 
+                    email: email, 
+                    firstname: firstname, 
+                    lastname: lastname,
+                    password: hash, 
+                    confirmationPass: hash,
+                    role: roles[3].name
+                }) 
+                .then((user) => { 
+                    res.status(201).send(user);
+                }).catch((err) => { 
+                    res.status(500).send(err)
+                })
                 
             })
         }
     }catch(error) { 
-        res.status(500).send(error);
+        res.status(500).send(error.message);
+    }
+}
+
+exports.registerRecruiter =  async (req, res) => {
+    try { 
+        const { email, password } = req.body;
+
+        const usr = await User.findOne({ email: email });
+        if(usr) { res.status(400).send(`Recruiter already exists`) }
+        else { 
+            bcrypt.hash(password, 10, async (err, hash) => {
+                if(err) { 
+                    res.status(500).send(err)
+                }
+                const user = await User.create({ 
+                    email, 
+                    password: hash, 
+                    confirmationPass: hash,
+                    role: roles[0].name
+                }) 
+                await user.save();                    
+                res.status(201).send(user)
+            })
+        }
+    }catch(error) { 
+        res.status(500).send(error.message);
     }
 }
 
@@ -48,7 +65,7 @@ exports.loginUser = async (req, res) => {
     try { 
         const { email, password } = req.body;
         const user = await User.findOne({ email: email }) ; 
-        if(!user) { return res.status(404).send(`User not found`) };
+        if(!user) { return res.status(404).send(`Wrong Email`) };
         const validPass = await bcrypt.compare(password, user.password); 
         if(!validPass) { return res.status(401).send(`Wrong password`) } 
         else { 
@@ -58,7 +75,7 @@ exports.loginUser = async (req, res) => {
                 username: user.username,
                 role: user.role
             }
-            const token = jwt.sign(payload, process.env.JWT_KEY, { expiresIn: '5 days'}); 
+            const token = jwt.sign(payload, process.env.JWT_KEY, { expiresIn: '3d' }); 
             return res.status(200).json({message: 'Logged in', token})
         }
     }catch(err) { 

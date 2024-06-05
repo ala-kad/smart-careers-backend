@@ -1,17 +1,17 @@
 var express = require('express');
 var router = express.Router();
 
-var { registerUser, loginUser } = require('../controllers/authController') ;
-var { getAllUsers, getOneUser, updateUser, deleteUser, deleteAll } = require('../controllers/userController.js');
+var { registerCandidate, loginUser, registerRecruiter } = require('../controllers/authController') ;
+var { getAllUsers, getOneUser, updateUserRole, deleteUser, deleteAll, disableUser, getEnabledUsers, getDisabledUsers } = require('../controllers/userController.js');
 
 
 var rbac = require('../middlewares/rbac') ;
-var { ROLE, Users, default: Role } = require('../models/Role') ;
 var passportConfig = require('../config/passport');
 
 var passport = require('passport')
 var LocalStrategy = require('passport-local');
 
+var { verifyToken } = require('../middlewares/autorization');
 
 // Auth func Passport Local (user + pass) - TO-CHECK
 passport.use(new LocalStrategy (
@@ -32,19 +32,27 @@ passport.use(new LocalStrategy (
 ))
 
 /* Add user . */
-router.post('/', registerUser);
+router.post('/candidate', registerCandidate);
+
+router.post('/recruiter', verifyToken, registerRecruiter)
 
 /* Login user */ 
 router.post('/login', loginUser);
 
 /* GET users listing. */
-router.get('/', rbac.authUser, getAllUsers)
+router.get('/', getAllUsers);
+
+router.get('/enabled', getEnabledUsers)
+
+router.get('/disabled', getDisabledUsers);
 
 /* GET one user. */
 router.get('/:id', getOneUser)
 
 /* Update user */ 
-router.patch('/:id', updateUser);
+router.patch('/:id', updateUserRole);
+
+router.patch('/:id/disable', disableUser);
 
 /* Delete user*/
 router.delete('/:id', deleteUser );
@@ -52,7 +60,8 @@ router.delete('/:id', deleteUser );
 router.delete('/', deleteAll);
 
 // router.get('/admin', rbac.checkRole(ROLE.ADMIN))
-router.get('/admin', rbac.checkRole(['admin'])) //  /users/admin => user.role === admin / crud user.role === recruteur 
+router.get('/dashboard/admin', async(req, res) => { 
+}) //  /users/admin => user.role === admin / crud user.role === recruteur 
 
 router.get('/recruiter', function(req, res, next) {
   res.send('Recruiter dashboard');
