@@ -2,7 +2,7 @@ const { GoogleGenerativeAI } = require("@google/generative-ai");
 const genAI = new GoogleGenerativeAI(process.env.API_KEY);
 
 const Job = require('../models/job'); 
-const Question = require('../models/questions');
+const Questionnaire = require('../models/questions');
 
 const createJob = async (req, res) => { 
     const { title, responsibilities, qualificationsSkills, salaryBenefits, workEnv, questions } = req.body 
@@ -19,7 +19,7 @@ const createJob = async (req, res) => {
         })
         .then((j) => {
             const reformatQuestion = questions.map((item) =>({...item, jobId: j._id}))
-            Question.insertMany(reformatQuestion)
+            Questionnaire.insertMany(reformatQuestion)
             res.status(201).json(j);
         } )       
     }catch (error) {
@@ -60,7 +60,7 @@ const getOneJob = async (req, res) => {
 const getJobQuestions = async (req, res) => { 
     try{
         let job = await Job.findById(req.params.id); 
-        let questions = await Question.find({ jobId: job._id });
+        let questions = await Questionnaire.find({ jobId: job._id });
         res.status(200).send(questions);
     } catch(err) {
         res.status(500).send(err);

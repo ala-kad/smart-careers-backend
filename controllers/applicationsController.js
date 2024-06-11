@@ -41,8 +41,10 @@ const respondQuestions = async (req, res) => {
         Question.find({ jobId: jobId })
         .then(questions => {
             const responsePromises = responses.responses.map((response, index) => {
+                // If question type is boolean, convert answer to boolean
+                const answer = questions[index].type === 'boolean' ? (response.answer === 'true' || response.answer === true) : response.answer;
                 return Response.create({
-                    answer: response.answer,
+                    answer: answer,
                     questionId: questions[index]._id,
                 });
             });
@@ -141,12 +143,16 @@ const listApplicationsByJobId = async(req, res) => {
         const { jobId } = req.query;
         console.log(jobId)
         let applications = await Application.find({ jobId: jobId })
-        .populate(['jobId', 'responses', 'resume', 'candidateId']);
-        // .populate('responses')
-        // .populate('resume')
-        // .populate('candidateId');
-
-        console.log(applications)
+        .populate(
+            {
+                path: 'responses',
+                populate: {
+                    path: 'questionId',
+                    model: 'Questionnaire',
+                },
+            }
+        )
+        .populate(['jobId', 'resume', 'candidateId']);
         res.status(200).json(applications);
     }catch(err) { 
         console.log(err)
@@ -154,4 +160,7 @@ const listApplicationsByJobId = async(req, res) => {
     }
 }
 
+const checkIfCandidateFit = async(req, res) => {
+
+}
 module.exports = { listCandidateApplications, stepOneApplication, respondQuestions, submitJobApplication, checkIfCandidateApplied, listApplicationsByJobId };
