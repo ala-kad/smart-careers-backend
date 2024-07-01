@@ -20,7 +20,6 @@ var usersRouter = require('./routes/users');
 var jobsRouter = require('./routes/jobs');
 var rolesRouter = require('./routes/role');
 var applicationsRouter = require('./routes/application');
-var questionRouter = require('./routes/questions')
 
 /**
  * Middlewares
@@ -64,6 +63,5 @@ app.use('/users', usersRouter);
 app.use('/jobs', jobsRouter);
 app.use('/roles', rbac.authUser, rbac.authAdmin, rolesRouter);
 app.use('/applications', applicationsRouter);
-app.use('/questions', questionRouter)
 
 module.exports = app;
