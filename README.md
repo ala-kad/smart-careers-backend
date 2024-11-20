@@ -1,8 +1,4 @@
-# ![Smart Careers - NodeJS/ExpressJS - backend server]
-
-> ### Example Node (Express + MongoDB) 
-
-<a href="https://thinkster.io/tutorials/node-json-api" target="_blank"><img width="454" src="https://raw.githubusercontent.com/gothinkster/realworld/master/media/learn-btn-hr.png" /></a>
+# [Smart Careers - NodeJS/ExpressJS - backend server]
 
 ## Getting Started
 
