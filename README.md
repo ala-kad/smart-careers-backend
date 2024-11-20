@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/anishkny/node-express-realworld-example-app.svg?branch=master)](https://travis-ci.org/anishkny/node-express-realworld-example-app)
 
-> ### Example Node (Express + Prisma) codebase containing real world examples (CRUD, auth, advanced patterns, etc) that adheres to the [RealWorld](https://github.com/gothinkster/realworld-example-apps) API spec.
+> ### Example Node (Express + MongoDB) 
 
 <a href="https://thinkster.io/tutorials/node-json-api" target="_blank"><img width="454" src="https://raw.githubusercontent.com/gothinkster/realworld/master/media/learn-btn-hr.png" /></a>
 
@@ -25,25 +25,16 @@ Your host provider should included a feature to set them there directly to avoid
 Here are the required ones:
 
 ```
-DATABASE_URL=
-JWT_SECRET=
-NODE_ENV=production
-```
+# DATA SOURCE 
+DB_URI = ''
 
-### Generate your Prisma client
+# SECURITY ACCESS KEYS
+JWT_KEY = ''
 
-Run the following command to generate the Prisma Client which will include types based on your database schema:
+#Gemini API Key
+API_KEY = ''
 
-```shell
-npx prisma generate
-```
-
-### Apply any SQL migration script
-
-Run the following command to create/update your database based on existing sql migration scripts:
-
-```shell
-npx prisma migrate deploy
+ADMIN_PSWD = ''
 ```
 
 ### Run the project
@@ -51,24 +42,8 @@ npx prisma migrate deploy
 Run the following command to run the project:
 
 ```shell
-npx nx serve api
+npm run admin
+npm run dev
 ```
 
-### Seed the database
 
-The project includes a seed script to populate the database:
-
-```shell
-npx prisma db seed
-```
-
-## Deploy on a remote server
-
-Run the following command to:
-- install dependencies
-- apply any new migration sql scripts
-- run the server
-
-```shell
-npm ci && npx prisma migrate deploy && node dist/api/main.js
-```
