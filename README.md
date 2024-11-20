@@ -1,6 +1,4 @@
-# ![Node/Express/Prisma Example App](project-logo.png)
-
-[![Build Status](https://travis-ci.org/anishkny/node-express-realworld-example-app.svg?branch=master)](https://travis-ci.org/anishkny/node-express-realworld-example-app)
+# ![Smart Careers - NodeJS/ExpressJS - backend server]
 
 > ### Example Node (Express + MongoDB) 
 
