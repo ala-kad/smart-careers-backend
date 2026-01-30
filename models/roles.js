@@ -1,5 +1,8 @@
 const roles = [
     {
+        "name": "admin"
+    },
+    {
         "name": "recruiter"
     },
     {

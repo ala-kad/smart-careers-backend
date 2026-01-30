@@ -36,6 +36,6 @@ const QuestionSchema = new Schema({
 }, {versionKey: false});
 
 
-const Questionnaire = mongoose.model('Questionnaire', QuestionSchema);
+const Question = mongoose.model('Question', QuestionSchema);
 
-module.exports = Questionnaire;
+module.exports = Question;

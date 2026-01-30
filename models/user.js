@@ -4,16 +4,17 @@ const userSchema = new mongoose.Schema({
     email: { 
         type: String,
         required: true,
-        unique: true
+        unique: true,
+        lowercase: true,
     },
     password: {
         type: String,
         required: true
     },
-    role: {
-        type: [String],
-        enum: ['admin', 'recruiter', 'rh', 'technique','candidate']
-    },
+    role: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Role'
+    }],
     enabled: {
         type: Boolean,
         default: true

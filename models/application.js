@@ -1,9 +1,9 @@
 const mongoose = require('mongoose');
 
 const applicationSchema =  new mongoose.Schema({
-    appplicationDate: {
+    applicationDate: {
         type: Date,
-        default: Date.now()
+        default: Date.now
     },
     candidateId: { 
         type: mongoose.Types.ObjectId,

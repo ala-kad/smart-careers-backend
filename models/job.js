@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const jobSchema = new mongoose.Schema({
     title: String, 
     responsibilities: String,
-    skillsQualitfications: String,   
+    skillsQualifications: String,   
     benefits: String,
     location: {
         type: String,
@@ -19,7 +19,8 @@ const jobSchema = new mongoose.Schema({
         enum: ['Draft', 'Published', 'Preselection', 'Hr_validation', 'Selection_test', 'Selection', 'Archived', 'Cancelled', 'Reviewing Applications']
     },
     description: {
-        type: String
+        type: String,
+        trim: true
     },
     recruiterId: { 
         type: mongoose.Types.ObjectId,
