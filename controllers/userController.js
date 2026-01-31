@@ -1,101 +1,105 @@
 const asyncHandler = require('express-async-handler');
-const  User = require('../models/user');
+const User = require('../models/user');
+const Role = require('../models/role');
 
-const getAllUsers = async (req, res)  => { 
-    try {
-        const users = await User.find();
-        res.status(200).send(users);
-    } catch (error) {
-        res.status(500).send(error);
+// Helper to accept either role names or ObjectId strings and return ObjectId array
+const resolveRoleIds = async (rolesInput) => {
+    if (!Array.isArray(rolesInput)) {
+        const err = new Error('roles must be an array of role names or ids');
+        err.status = 400;
+        throw err;
     }
-}
+    if (rolesInput.length === 0) return [];
 
-const getOneUser = async (req, res)  => { 
-    try {
-        const user = await User.findById(req.params.id);
-        res.status(200).send(user);
-    } catch (error) {        
-        console.log(error)
-        res.status(500).send(error);
+    const objectIdRegex = /^[0-9a-fA-F]{24}$/;
+    const ids = [];
+    const namesToLookup = [];
+
+    for (const r of rolesInput) {
+        if (objectIdRegex.test(String(r))) ids.push(r);
+        else namesToLookup.push(r);
     }
-}
 
-const getEnabledUsers = async(req, res) => { 
-    try { 
-        const users = await User.find({ 
-            $and: [                
-                { role: { $ne: 'admin' } } ,
-                { role: { $ne: 'candidate' } } ,
-                { enabled: true }, 
-            ] 
-        })
-        console.log(users)
-        res.status(200).json(users); 
-    }catch(err) {
-        console.log(err.message);
-    }
-} 
-
-const getDisabledUsers = async(req, res) => {
-    try{ 
-        return res.status(200).send( await User.find({ enabled: false }))
-    }catch(err){ 
-        console.log(err);
-        return res.status(500).send(err);
-    }
-}
-
-const updateUserRole = async (req, res) => { 
-    try{ 
-        const user = await User.findById(req.params.id);
-
-        if(!user) { return res.status(404).send('User not found') }
-        else { 
-            user.role = req.body ;
-            await user.save();
-            res.status(201).send('User updated');
+    if (namesToLookup.length > 0) {
+        const rolesFound = await Role.find({ name: { $in: namesToLookup } });
+        const foundNames = rolesFound.map(r => r.name);
+        const missing = namesToLookup.filter(n => !foundNames.includes(n));
+        if (missing.length > 0) {
+            const err = new Error(`Roles not found: ${missing.join(', ')}`);
+            err.status = 400;
+            throw err;
         }
-    }catch(error){
-        console.log(error)
-        return res.status(400).json(error);
+        ids.push(...rolesFound.map(r => r._id));
     }
+
+    return ids;
 }
 
-const deleteUser = async (req, res) => { 
-    try {
-        const user = await User.findById(req.params.id);
-        if(!user) { return res.status(404).json(`User not found`) };
-        await user.deleteOne();
-        return res.status(200).json(`User deleted`);
-    }catch(err) { 
-        return res.status(500).send(err);
-    }
-}
+const getAllUsers = asyncHandler(async (req, res) => {
+    const users = await User.find().populate('role', 'name');
+    res.status(200).json(users);
+});
 
-const disableUser = async (req, res) => { 
-    try {
-        const user = await User.findById(req.params.id);
-        if(!user) { return res.status(404).json(`User not found`) };
-        user.enabled = false;
-        await user.save()
-        return res.status(200).json(`User disabled`);
-    }catch(err) { 
-        return res.status(500).send(err);
-    }
-}
+const getOneUser = asyncHandler(async (req, res) => {
+    const user = await User.findById(req.params.id).populate('role', 'name');
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    res.status(200).json(user);
+});
 
-const deleteAll = asyncHandler(async(req, res) => { 
+const getEnabledUsers = asyncHandler(async (req, res) => {
+    const excluded = await Role.find({ name: { $in: ['admin', 'candidate'] } }).select('_id');
+    const excludedIds = excluded.map(r => r._id);
+
+    const users = await User.find({
+        enabled: true,
+        role: { $nin: excludedIds }
+    }).populate('role', 'name');
+
+    res.status(200).json(users);
+});
+
+const getDisabledUsers = asyncHandler(async (req, res) => {
+    const users = await User.find({ enabled: false }).populate('role', 'name');
+    res.status(200).json(users);
+});
+
+const updateUserRole = asyncHandler(async (req, res) => {
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    const roleInput = req.body;
+    const roleIds = await resolveRoleIds(roleInput);
+
+    user.role = roleIds;
+    await user.save();
+
+    res.status(200).json({ status: 'user_updated' });
+});
+
+const deleteUser = asyncHandler(async (req, res) => {
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    await user.deleteOne();
+    res.status(200).json({ status: 'user_deleted' });
+});
+
+const disableUser = asyncHandler(async (req, res) => {
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    user.enabled = false;
+    await user.save();
+    res.status(200).json({ status: 'user_disabled' });
+});
+
+const deleteAll = asyncHandler(async (req, res) => {
     await User.deleteMany();
-    res.status(200).send(`Users deleted`);
-})
+    res.status(200).json({ status: 'users_deleted' });
+});
 
-const getCandidateInfos = async(req, res) => {
-    try{
-        let candidate = await User.findById(req.params.userId);
-        res.status(200).send(candidate);
-    } catch(err) {
-        res.status(500).send(err)
-    }
-}
+const getCandidateInfos = asyncHandler(async (req, res) => {
+    const candidate = await User.findById(req.params.userId).populate('role', 'name');
+    if (!candidate) return res.status(404).json({ error: 'Candidate not found' });
+    res.status(200).json(candidate);
+});
 
 module.exports = { getAllUsers, getOneUser, updateUserRole, deleteUser, deleteAll, disableUser, getEnabledUsers, getDisabledUsers, getCandidateInfos }; 

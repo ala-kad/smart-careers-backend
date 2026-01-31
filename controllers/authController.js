@@ -1,4 +1,4 @@
-var bcrypt = require('bcrypt');
+var bcrypt = require('bcryptjs');
 var jwt = require('jsonwebtoken'); 
 
 var  User = require('../models/user');
@@ -20,7 +20,7 @@ exports.registerCandidate =  async (req, res) => {
                     lastname: lastname,
                     password: hash, 
                     confirmationPass: hash,
-                    role: roles[3].name
+                    role: roles.find(r => r.name === 'candidate')
                 }) 
                 .then((user) => { 
                     res.status(201).send(user);
@@ -50,7 +50,7 @@ exports.registerRecruiter =  async (req, res) => {
                     email, 
                     password: hash, 
                     confirmationPass: hash,
-                    role: roles[0].name
+                    role: roles.find(r => r.name === 'recruiter')
                 }) 
                 await user.save();                    
                 res.status(201).send(user)

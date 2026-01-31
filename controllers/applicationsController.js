@@ -1,157 +1,95 @@
+const asyncHandler = require('express-async-handler');
 const Application = require('../models/application');
 const Resume = require('../models/resume');
 const Question = require('../models/questions');
 const Response = require('../models/responses');
 
-const stepOneApplication = async(req, res) => {
-    try{
-        const { candidateId, jobId } = req.query;
-        const url = req.protocol + "://" + req.get("host");
-        if(req.file) { 
-            let resume = await Resume.create({               
-                filename: req.file.filename,
-                url: url + "/public/" + req.file.filename,
-                candidateId: candidateId,
-            });
-            await resume.save();            
-            let application = await Application.create({
-                candidateId: candidateId,
-                jobId: jobId,
-                resume: resume._id,
-            })
-            await application.save();
-            res.status(200).send(application);
-        }else {
-            console.log('Please upload a CV ! ');
-        }
-    }catch(err) { 
-        console.log(err)
-        res.status(500).send(err)
+const stepOneApplication = asyncHandler(async (req, res) => {
+    const { candidateId, jobId } = req.query;
+    const url = req.protocol + "://" + req.get("host");
+
+    if (!req.file) {
+        return res.status(400).json({ error: 'Please upload a CV' });
     }
-}
 
-const respondQuestions = async (req, res) => { 
-    try {
-        const { candidateId, jobId } = req.query; 
-        const { responses } = req.body;
+    const resume = await Resume.create({
+        filename: req.file.filename,
+        url: url + "/public/" + req.file.filename,
+        candidateId: candidateId,
+    });
 
-        console.log('Req Body:', req.body);
-        console.log('Req responses:', responses);
+    await resume.save();
 
-        Question.find({ jobId: jobId })
-        .then(questions => {
-            const responsePromises = responses.responses.map((response, index) => {
-                return Response.create({
-                    answer: response.answer,
-                    questionId: questions[index]._id,
-                });
-            });
-            // Wait for all response creation promises to resolve
-            Promise.all(responsePromises)
-            .then(createdResponses => {
-                Application.findOne({ candidateId: candidateId, jobId: jobId })
-                .then(application => {
-                    if (!application) {
-                        throw new Error("Application not found");
-                    }
-                    application.responses = createdResponses.map(r => r._id);
-                    application.save()
-                    .then(updatedApplication => {
-                        console.log('Application updated:', updatedApplication);
-                        res.status(200).json(updatedApplication);
-                    })
-                    .catch(err => {
-                        console.error('Error saving application:', err);
-                        res.status(500).json({ error: 'Error saving application' });
-                    });
-                })
-                .catch(err => {
-                    console.error('Error finding application:', err);
-                    res.status(500).json({ error: 'Error finding application' });
-                });
-            })
-            .catch(err => {
-                console.error('Error creating responses:', err);
-                res.status(500).json({ error: 'Error creating responses' });
-            });
-        })
-        .catch(err => {
-            console.error('Error finding questions:', err);
-            res.status(500).json({ error: 'Error finding questions' });
+    const application = await Application.create({
+        candidateId: candidateId,
+        jobId: jobId,
+        resume: resume._id,
+    });
+
+    await application.save();
+    res.status(200).send(application);
+});
+
+const respondQuestions = asyncHandler(async (req, res) => {
+    const { candidateId, jobId } = req.query;
+    const { responses } = req.body;
+
+    if (!responses || !Array.isArray(responses.responses)) {
+        return res.status(400).json({ error: 'Invalid responses payload' });
+    }
+
+    const questions = await Question.find({ jobId: jobId });
+
+    const responsePromises = responses.responses.map((response, index) => {
+        const question = questions[index];
+        return Response.create({
+            answer: response.answer,
+            questionId: question ? question._id : undefined,
         });
-    } catch (err) {
-        console.error('Error:', err);
-        res.status(500).json({ error: 'Internal server error' });
-    }
-};
+    });
 
-const submitJobApplication = async(req, res) => { 
-    try{
-        const { candidateId, jobId } = req.query;
-        console.log('Query Params', req.query)
-        let application = await Application.findOne({
-            candidateId: candidateId,
-            jobId: jobId
-        })
-        if(application) { 
-            console.log('Application confirmed', application)
-           return res.status(200).send(application)
-        }
-        console.log('Application not confirmed')
-        return res.status(404).send('Not found')
-    }catch(err) {
-        console.log(err);
-        return res.status(500).send(err)
-    }
-}
+    const createdResponses = await Promise.all(responsePromises);
 
-const listCandidateApplications = async(req, res) => { 
-    try{
-        const { candidateId } = req.query
-        console.log(req.query);
-        const applicationList = await Application.find({
-            candidateId: candidateId
-        }).populate('jobId')
-        
-        res.status(200).json(applicationList);
-    }catch(err){
-        res.status(500).send(err)
+    const application = await Application.findOne({ candidateId: candidateId, jobId: jobId });
+    if (!application) {
+        return res.status(404).json({ error: 'Application not found' });
     }
-}
 
-const checkIfCandidateApplied = async(req, res) => {
-    try{
-        const { jobId, candidateId } = req.query;
-        console.log('Query Params', req.query);
-        let application = await Application.find({jobId: jobId, candidateId: candidateId});
-        if(application) { 
-            console.log('You have already applied for this job', application);
-            return res.status(200).json(application)
-        }else { 
-            return res.status(200).json('You can apply')
-        }   
-    }catch(err){
-        console.log('soemthing went wrong oups ! ', err);
-        return res.status(500).json(err.message);
-    }
-}
+    application.responses = createdResponses.map(r => r._id);
+    const updatedApplication = await application.save();
 
-const listApplicationsByJobId = async(req, res) => { 
-    try{
-        const { jobId } = req.query;
-        console.log(jobId)
-        let applications = await Application.find({ jobId: jobId })
-        .populate(['jobId', 'responses', 'resume', 'candidateId']);
-        // .populate('responses')
-        // .populate('resume')
-        // .populate('candidateId');
+    res.status(200).json(updatedApplication);
+});
 
-        console.log(applications)
-        res.status(200).json(applications);
-    }catch(err) { 
-        console.log(err)
-        res.status(500).json(err);
-    }
-}
+const submitJobApplication = asyncHandler(async (req, res) => {
+    const { candidateId, jobId } = req.query;
+
+    const application = await Application.findOne({
+        candidateId: candidateId,
+        jobId: jobId
+    });
+
+    if (application) return res.status(200).send(application);
+    return res.status(404).json({ error: 'Application not found' });
+});
+
+const listCandidateApplications = asyncHandler(async (req, res) => {
+    const { candidateId } = req.query;
+    const applicationList = await Application.find({ candidateId: candidateId }).populate('jobId');
+    res.status(200).json(applicationList);
+});
+
+const checkIfCandidateApplied = asyncHandler(async (req, res) => {
+    const { jobId, candidateId } = req.query;
+    const application = await Application.find({ jobId: jobId, candidateId: candidateId });
+    if (application && application.length > 0) return res.status(400).json(application);
+    return res.status(200).json({ status: 'can_apply' });
+});
+
+const listApplicationsByJobId = asyncHandler(async (req, res) => {
+    const { jobId } = req.query;
+    const applications = await Application.find({ jobId: jobId }).populate(['jobId', 'responses', 'resume', 'candidateId']);
+    res.status(200).json(applications);
+});
 
 module.exports = { listCandidateApplications, stepOneApplication, respondQuestions, submitJobApplication, checkIfCandidateApplied, listApplicationsByJobId };
