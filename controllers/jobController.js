@@ -1,9 +1,7 @@
-const asyncHandler = require('express-async-handler');
-const { GoogleGenerativeAI } = require("@google/generative-ai");
-const genAI = new GoogleGenerativeAI(process.env.API_KEY);
-
+const GeminiSerivice = require('../services/gemini.service');
 const Job = require('../models/job');
 const Question = require('../models/questions');
+const asyncHandler = require('express-async-handler');
 
 const createJob = asyncHandler(async (req, res) => {
     const { title, responsibilities, qualificationsSkills, salaryBenefits, workEnv, questions } = req.body;
@@ -75,20 +73,7 @@ const publishJob = asyncHandler(async (req, res) => {
 });
 
 const generateJobText = asyncHandler(async (req, res) => {
-    const generationConfig = {
-        temperature: 0,
-        topK: 0,
-        topP: 1,
-        maxOutputTokens: 2048,
-    };
-    const model = genAI.getGenerativeModel({ model: "gemini-1.0-pro", generationConfig: generationConfig });
-    const { title, qualificationsSkills } = req.body;
-    const prompt = `Act as a world-class HR Expert. Generate a professional job offer in JSON format:
-        { "summary": "...", "detailedDescription": "...", "shortBulletPoints": [] }
-        Details: Title: ${title}, Skills: ${qualificationsSkills}...`;
-    const result = await model.generateContent(prompt);
-    const response = result.response;
-    const structuredData = JSON.parse(response.text());
+    const structuredData = await GeminiSerivice.generateStructuredJobDescription(req.body);
     res.status(200).json(structuredData);
 });
 
