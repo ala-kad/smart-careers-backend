@@ -36,6 +36,7 @@ ADMIN_PSWD = ''
 Run the following command to run the project:
 
 ```shell
+npm install
 npm run admin
 npm run dev
 ```
