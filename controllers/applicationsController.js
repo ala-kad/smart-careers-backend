@@ -1,8 +1,11 @@
-const asyncHandler = require('express-async-handler');
 const Application = require('../models/application');
 const Resume = require('../models/resume');
 const Question = require('../models/questions');
 const Response = require('../models/responses');
+const GeminiService = require('../services/gemini.service');
+
+const asyncHandler = require('express-async-handler');
+const path = require('path');
 
 const stepOneApplication = asyncHandler(async (req, res) => {
     const { candidateId, jobId } = req.query;
@@ -92,4 +95,44 @@ const listApplicationsByJobId = asyncHandler(async (req, res) => {
     res.status(200).json(applications);
 });
 
-module.exports = { listCandidateApplications, stepOneApplication, respondQuestions, submitJobApplication, checkIfCandidateApplied, listApplicationsByJobId };
+const screenApplication = asyncHandler(async (req, res) => {
+    const { applicationId } = req.params;
+
+    const application = await Application.findById(applicationId)
+        .populate('jobId')
+        .populate('resume')
+
+    if (!application || !application.resume) {
+        return res.status(404).json({ error: 'Application not found' });
+    }
+
+    const pdfPath = path.join(__dirname, '..', 'public/resumes/', application.resume.filename);
+    const resumeContent = await GeminiService.analyzeCandidateMatch(pdfPath);
+
+    const jobDescription = application.jobId.description || application.jobId.responsibilities;
+    const analysis = await GeminiService.analyzeCandidateMatch(
+        jobDescription,
+        resumeContent
+    );
+
+    application.aiAnalysis = analysis;
+    application.status = analysis.matchPercentage >= 75 ? 'Selection' : 'Hr_validation';
+    await application.save();
+
+    res.status(200).json({
+        success: true,
+        matchPercentage: analysis.matchPercentage,
+        recommendation: analysis.hiringRecommendation,
+        fullAnalysis: analysis
+    });
+})
+
+module.exports = {
+    listCandidateApplications,
+    stepOneApplication,
+    respondQuestions,
+    submitJobApplication,
+    checkIfCandidateApplied,
+    listApplicationsByJobId,
+    screenApplication,
+};

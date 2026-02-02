@@ -24,6 +24,13 @@ const applicationSchema =  new mongoose.Schema({
     resume: {
         type: mongoose.Schema.Types.ObjectId, 
         ref: 'Resume'
+    },
+    aiAnalysis: {
+        matchPercentage: Number,
+        strengths: [String],
+        weaknesses: [String],
+        hiringRecommendation: String,
+        feedbackToCandidate: String
     }
 }, { versionKey: false })
 
