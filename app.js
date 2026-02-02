@@ -14,13 +14,25 @@ var passportConfig= require('./config/passport');
 
 /**
  * Routes
- */
+// app.use('/questions', questionRouter)
+// var questionRouter = require('./routes/questions')
+*/
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var jobsRouter = require('./routes/jobs');
 var rolesRouter = require('./routes/role');
 var applicationsRouter = require('./routes/application');
-var questionRouter = require('./routes/questions')
+
+app.use('/', indexRouter);
+app.use('/users', usersRouter);
+app.use('/jobs', jobsRouter);
+app.use('/roles', rbac.authUser, rbac.authAdmin, rolesRouter);
+app.use('/applications', applicationsRouter);
+
+const swaggerUi = require('swagger-ui-express');
+const swaggerDoc = require('./swagger.json');
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup());
+
 
 /**
  * Middlewares
@@ -56,14 +68,12 @@ app.use(session({
 // app.use(limiter);
 
 
-/**
- * Routes
- */
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
-app.use('/jobs', jobsRouter);
-app.use('/roles', rbac.authUser, rbac.authAdmin, rolesRouter);
-app.use('/applications', applicationsRouter);
-app.use('/questions', questionRouter)
+
+
+// Error handling middleware (centralized)
+app.use((err, req, res, next) => {
+    console.error(err);
+    res.status(err.status || 500).json({ message: err.message || 'Internal Server Error' });
+});
 
 module.exports = app;
