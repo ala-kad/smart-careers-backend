@@ -1,5 +1,5 @@
 /**
- * Packges
+ * Packages
  */
 var express = require('express');
 var app = express();
@@ -13,10 +13,31 @@ var passport = require('passport');
 var passportConfig= require('./config/passport');
 
 /**
+ * Middlewares
+ */
+app.use(logger('dev'));
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+app.use(cookieParser());
+app.use(cors());
+app.use(passport.initialize(passportConfig));
+app.use(session({
+    secret: 'keyboard cat',
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: true }
+}));
+
+
+/**
  * Routes
 // app.use('/questions', questionRouter)
 // var questionRouter = require('./routes/questions')
 */
+const swaggerUi = require('swagger-ui-express');
+const swaggerDoc = require('./swagger.json');
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDoc));
+
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var jobsRouter = require('./routes/jobs');
@@ -29,30 +50,17 @@ app.use('/jobs', jobsRouter);
 app.use('/roles', rbac.authUser, rbac.authAdmin, rolesRouter);
 app.use('/applications', applicationsRouter);
 
-const swaggerUi = require('swagger-ui-express');
-const swaggerDoc = require('./swagger.json');
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup());
+
 
 
 /**
- * Middlewares
+ * Stattic assets
  */
-app.use(logger('dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'public', 'uploads')));
 app.use(express.static(path.join(__dirname, 'public', 'uploads', 'cvs')));
 app.use(express.static(path.join(__dirname, 'public', 'images')));
-app.use(cors());
-app.use(passport.initialize(passportConfig));
-app.use(session({
-    secret: 'keyboard cat',
-    resave: false,
-    saveUninitialized: true,
-    cookie: { secure: true }
-}));
+
 
 /**
  * TO-DO Rate limit reqs 
@@ -66,8 +74,6 @@ app.use(session({
 //     });
     
 // app.use(limiter);
-
-
 
 
 // Error handling middleware (centralized)

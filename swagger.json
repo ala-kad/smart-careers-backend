@@ -1,22 +1,37 @@
 {
-  "definition": {
-    "openapi": "3.0.0",
-    "info": {
-      "title": "Smart Careers API",
-      "version": "1.0.0",
-      "description": "API Documention for Smart Careers. An AI-powered recruitment SaaS platform.",
-      "contact": {
-        "name": "Ala",
-        "email": "kaddechiala@gmail.com"
-      },
-      "servers": [
-        {
-          "url": "http://localhost:3000/api"
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Smart Careers API",
+    "version": "1.0.0",
+    "description": "API Documentation for Smart Careers. An AI-powered recruitment SaaS platform.",
+    "contact": {
+      "name": "Ala",
+      "email": "kaddechiala@gmail.com"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "Local Server"
+    }
+  ],
+  "paths": {
+    "/applications/screen/{applicationId}": {
+      "post": {
+        "summary": "AI Candidate Screening",
+        "description": "Analyzes candidate resume against job description using Gemini AI.",
+        "parameters": [
+          {
+            "name": "applicationId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Success" }
         }
-      ]
-    },
-    "apis": [
-      "./routes/*.js"
-    ]
+      }
+    }
   }
 }
