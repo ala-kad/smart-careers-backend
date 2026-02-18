@@ -4,13 +4,14 @@
 var express = require('express');
 var app = express();
 var path = require('path');
+require('dotenv').config();
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var session = require('express-session');
 var cors = require('cors');
 var rbac = require('./middlewares/rbac');
 var passport = require('passport');
-var passportConfig= require('./config/passport');
+var passportConfig = require('./config/passport');
 
 /**
  * Middlewares
@@ -36,7 +37,8 @@ app.use(session({
 */
 const swaggerUi = require('swagger-ui-express');
 const swaggerDoc = require('./swagger.json');
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDoc));
+const { specs } = require('./swagger');
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
@@ -51,8 +53,6 @@ app.use('/roles', rbac.authUser, rbac.authAdmin, rolesRouter);
 app.use('/applications', applicationsRouter);
 
 
-
-
 /**
  * Stattic assets
  */
@@ -60,20 +60,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'public', 'uploads')));
 app.use(express.static(path.join(__dirname, 'public', 'uploads', 'cvs')));
 app.use(express.static(path.join(__dirname, 'public', 'images')));
-
-
-/**
- * TO-DO Rate limit reqs 
- */
-
-// const limiter = rateLimit({
-//     windowMs: 5 * 60 * 1000,
-//     limit: 10,
-//     standardHeaders: true,
-//     legacyHeaders: false
-//     });
-    
-// app.use(limiter);
 
 
 // Error handling middleware (centralized)
