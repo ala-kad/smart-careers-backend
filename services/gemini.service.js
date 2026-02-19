@@ -5,7 +5,7 @@ const pdf = require('pdf-parse');
 
 const generateStructuredJobDescription = async (data) => {
 
-  const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
   const { title, responsibilities, qualificationsSkills, salaryBenefits, workEnv } = data;
   const prompt = `
       You are RecruiterGPT, a world-class HR expert.
