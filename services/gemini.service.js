@@ -1,13 +1,29 @@
 const { GoogleGenerativeAI } = require("@google/generative-ai");
+const { GoogleGenAI } = require('@google/genai');
+const asyncHandler = require('express-async-handler');;
 const genAI = new GoogleGenerativeAI(process.env.API_KEY);
+const ai = new GoogleGenAI({
+  httpOptions: { apiVersion: "v1alpha" },
+  apiKey: process.env.API_KEY,
+});
+
 const fs = require('fs');
 const pdf = require('pdf-parse');
 
-const generateStructuredJobDescription = async (data) => {
+const res = asyncHandler(async (req, res) => {
+  const response = await ai.models.generateContent({
+    model: "gemini-2.5-flash",
+    contents: "Explain how AI works",
+  });
+  console.log(response.text);
+  return res.json({ result: response.text });
+});
 
-  const model = genAI.getGenerativeModel({ model: "gemini-pro" });
-  const { title, responsibilities, qualificationsSkills, salaryBenefits, workEnv } = data;
-  const prompt = `
+
+const generateStructuredJobDescription = async (data) => {
+  try {
+    const { title, responsibilities, qualificationsSkills, salaryBenefits, workEnv } = data;
+    const prompt = `
       You are RecruiterGPT, a world-class HR expert.
       Generate a professional job offer based on these details:
       - Title: ${title}
@@ -25,10 +41,12 @@ const generateStructuredJobDescription = async (data) => {
         "suggestedQuestions": ["question1", "question2"]
       }
     `;
-  try {
-    const result = await model.generateContent(prompt);
-    const response = result.response;
-    const text = response.text();
+
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: `${prompt}`,
+    });
+    const text = response.text;
     const cleanJson = text.replace(/```json|```/g, "").trim();
     return JSON.parse(cleanJson);
   } catch (error) {
@@ -38,7 +56,7 @@ const generateStructuredJobDescription = async (data) => {
 
 };
 
-const analyzeCandidateMatch = async(jobDescription, resumeText) => {
+const analyzeCandidateMatch = async (jobDescription, resumeText) => {
   const model = genAI.getGenerativeModel({ model: "gemini-pro" });
 
   const prompt = `
@@ -57,19 +75,19 @@ const analyzeCandidateMatch = async(jobDescription, resumeText) => {
       }
     `;
 
-    try {
-      const result = await model.generateContent(prompt);
-      const response = await result.response;
-      const text = response.text();
-      const cleanJson = text.replace(/```json|```/g, "").trim();
-      return JSON.parse(cleanJson);
-    } catch (error) {
-      console.error("Error analyzing candidate match:", error);
-      throw new Error("Failed to analyze candidate match");
-    }
+  try {
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const text = response.text();
+    const cleanJson = text.replace(/```json|```/g, "").trim();
+    return JSON.parse(cleanJson);
+  } catch (error) {
+    console.error("Error analyzing candidate match:", error);
+    throw new Error("Failed to analyze candidate match");
+  }
 }
 
-const extractTextFromPDF = async(filePath) => {
+const extractTextFromPDF = async (filePath) => {
   try {
     const dataBuffer = fs.readFileSync(filePath);
     const data = await pdf(dataBuffer);
@@ -80,8 +98,9 @@ const extractTextFromPDF = async(filePath) => {
   }
 }
 
-module.exports = { 
-  generateStructuredJobDescription, 
+module.exports = {
+  generateStructuredJobDescription,
   analyzeCandidateMatch,
   extractTextFromPDF,
+  res
 };
