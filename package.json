@@ -11,6 +11,7 @@
   "dependencies": {
     "@casl/ability": "^6.7.0",
     "@casl/mongoose": "^7.2.2",
+    "@google/genai": "^1.42.0",
     "@google/generative-ai": "^0.9.0",
     "@huggingface/inference": "^2.6.7",
     "bcryptjs": "^2.4.3",
@@ -20,8 +21,10 @@
     "dotenv": "^16.4.5",
     "express": "~4.16.1",
     "express-async-handler": "^1.2.0",
+    "express-rate-limit": "^8.2.1",
     "express-session": "^1.18.0",
     "fs": "^0.0.1-security",
+    "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.2.2",
     "mongoose-hrbac": "^4.0.1",
@@ -35,6 +38,7 @@
     "passport-local-mongoose": "^8.0.0",
     "pdf-parse": "^2.4.5",
     "rbac": "^5.0.3",
+    "resend": "^6.9.1",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1"
   }
