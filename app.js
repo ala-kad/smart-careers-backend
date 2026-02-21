@@ -12,6 +12,7 @@ var cors = require('cors');
 var rbac = require('./middlewares/rbac');
 var passport = require('passport');
 var passportConfig = require('./config/passport');
+const helmet = require('helmet');
 
 /**
  * Middlewares
@@ -28,7 +29,7 @@ app.use(session({
     saveUninitialized: true,
     cookie: { secure: true }
 }));
-
+app.use(helmet());
 
 /**
  * Routes
